@@ -1071,12 +1071,25 @@
                 });
 
                 if (response.ai_available && response.revised_text) {
-                    document.getElementById('revised-text-content').textContent = response.revised_text;
-                    document.getElementById('revised-text-box').style.display = 'block';
-                    document.getElementById('apply-edit-btn').style.display = 'inline-block';
+                    const revisedContentEl = document.getElementById('revised-text-content');
+                    const revisedBoxEl = document.getElementById('revised-text-box');
+                    const applyBtnEl = document.getElementById('apply-edit-btn');
+                    
+                    if (revisedContentEl) {
+                        revisedContentEl.textContent = response.revised_text;
+                    }
+                    if (revisedBoxEl) {
+                        revisedBoxEl.style.display = 'block';
+                    }
+                    if (applyBtnEl) {
+                        applyBtnEl.style.display = 'inline-block';
+                    }
                     window.currentRevisedText = response.revised_text;
                 } else if (response.suggestions) {
                     displayFallbackSuggestions(response.suggestions);
+                } else {
+                    // Show a simple success message if no specific response format
+                    alert('AI suggestion received, but no specific format available.');
                 }
 
             } catch (error) {
@@ -1088,14 +1101,21 @@
         }
 
         function displayFallbackSuggestions(suggestions) {
-            const container = document.getElementById('suggestions-container');
             const suggestionsDiv = document.getElementById('ai-suggestions');
             
-            container.innerHTML = suggestions.map((suggestion, index) => `
-                <div class="suggestion-item" onclick="selectSuggestion(${index}, '${suggestion}')">
-                    ${suggestion}
-                </div>
-            `).join('');
+            if (!suggestionsDiv) {
+                console.error('AI suggestions element not found');
+                return;
+            }
+            
+            suggestionsDiv.innerHTML = `
+                <div class="text-box-title">AI Suggestions (Service Unavailable)</div>
+                ${suggestions.map((suggestion, index) => `
+                    <div class="suggestion-item" onclick="selectSuggestion(${index}, '${suggestion.replace(/'/g, "\\'")}')">
+                        ${suggestion}
+                    </div>
+                `).join('')}
+            `;
             
             suggestionsDiv.style.display = 'block';
         }
