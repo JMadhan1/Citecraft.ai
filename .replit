@@ -9,3 +9,31 @@ expertMode = true
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 42429
+externalPort = 3000
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Flask Server"
+
+[[workflows.workflow]]
+name = "Flask Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "uv run python app.py"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
