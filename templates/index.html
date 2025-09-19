@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CiteCraft.AI - Revolutionizing Academic Writing</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-brain pulse-animation"></i>
+                <span class="logo-text">CiteCraft.AI</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="/login" class="nav-link login-btn">Login</a>
+                <a href="/login" class="nav-link cta-btn">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Generate Research Papers with
+                    <span class="gradient-text typewriter" id="typewriter"></span>
+                </h1>
+                <p class="hero-subtitle fade-in-up">
+                    Transform your research ideas into professionally formatted academic papers in minutes. 
+                    Our AI-powered platform handles everything from structure to citations.
+                </p>
+                <div class="hero-buttons fade-in-up">
+                    <a href="/login" class="btn btn-primary btn-large">
+                        <i class="fas fa-rocket"></i>
+                        Start Creating Now
+                    </a>
+                    <a href="#demo" class="btn btn-secondary btn-large">
+                        <i class="fas fa-play"></i>
+                        Watch Demo
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number counter" data-target="10000">0</span>
+                        <span class="stat-label">Papers Generated</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number counter" data-target="5000">0</span>
+                        <span class="stat-label">Happy Researchers</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number counter" data-target="99">0</span>
+                        <span class="stat-label">% Accuracy</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="floating-card">
+                    <div class="card-header">
+                        <i class="fas fa-file-alt"></i>
+                        <span>AI Research Paper</span>
+                    </div>
+                    <div class="typing-animation">
+                        <div class="line"></div>
+                        <div class="line short"></div>
+                        <div class="line"></div>
+                        <div class="line medium"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Powerful Features for Academic Excellence</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h3>AI-Powered Generation</h3>
+                    <p>Advanced AI models create structured, coherent research papers from your abstracts and topics.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-quote-right"></i>
+                    </div>
+                    <h3>Auto Citations</h3>
+                    <p>Automatically generate and format citations in APA, MLA, IEEE, and Chicago styles.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Collaborative Editing</h3>
+                    <p>Work together with your team in real-time with version control and conflict resolution.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h3>Multiple Formats</h3>
+                    <p>Export your papers in PDF, DOCX, and LaTeX formats with professional formatting.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Plagiarism Check</h3>
+                    <p>Built-in plagiarism detection and bias scanning ensure academic integrity.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>Real-time Progress</h3>
+                    <p>Track your paper generation progress with live updates and status notifications.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Upload Your Topic</h3>
+                        <p>Provide your research abstract or topic description</p>
+                    </div>
+                </div>
+                <div class="step-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>AI Processing</h3>
+                        <p>Our AI analyzes and generates structured content</p>
+                    </div>
+                </div>
+                <div class="step-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Review & Download</h3>
+                        <p>Edit, format, and download your professional paper</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2 class="cta-title">Ready to Transform Your Research?</h2>
+            <p class="cta-subtitle">Join thousands of researchers who trust CiteCraft.AI for their academic writing needs</p>
+            <a href="/login" class="btn btn-primary btn-large">
+                <i class="fas fa-rocket"></i>
+                Get Started Today
+            </a>
+        </div>
+    </section>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

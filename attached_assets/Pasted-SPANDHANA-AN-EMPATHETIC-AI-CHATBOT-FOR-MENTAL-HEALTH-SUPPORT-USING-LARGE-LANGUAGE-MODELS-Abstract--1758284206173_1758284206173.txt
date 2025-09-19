@@ -1,0 +1,15 @@
+SPANDHANA: AN EMPATHETIC AI CHATBOT FOR MENTAL HEALTH SUPPORT USING LARGE LANGUAGE MODELS
+Abstract: Mental health issues, particularly depression, are haunting millions of individuals globally. Several still find it difficult to receive adequate support because of distance, language, culture and social stigma. To mitigate this, we developed a smart and empathetic AI-based chatbot providing emotional support in different languages—namely English, Hindi and Telugu—with text and voice interaction. Our chatbot employs cutting-edge technologies such as emotion recognition, natural language processing and real-time translation to recognize users' emotions and offer substantial feedback. It features a special emotion dictionary of more than 5,000 words related to emotion, each with a weight graded according to severity. It assists the system to evaluate what the individual is feeling and provides them with the appropriate type of support, be it inspirational quotes, gentle jokes or even crisis intervention if necessary. Unique about this chatbot is that it can reply empathetically as well as culturally sensitively. Utilizing Google Translate and DeepSeek AI, it is able to have actual conversations while preserving emotional nuance in more than 20 languages. It also picks up on the early indicators of depression and proposes useful actions depending on the user's emotional state. During the testing process, our chatbot registered a 340% improved engagement rate over the usual mental well-being apps. It also accurately matched clinical depression risk assessments with 92%. Users also valued the cultural sensitivity and 95% agreed that the support offered was suitable and beneficial. This initiative demonstrates how merging psychology, artificial intelligence and cultural sensitivity can bring mental health care within reach, particularly to individuals who otherwise cannot easily access it. Our chatbot provides support 24/7, in a user's preferred language, providing them with a reassuring companion at all times. Keywords: Multilingual support, emtional detection, natural language processing(NLP), mental health problems support, automated therapy and AI chatbot
+
+Conclusion
+Content generation temporarily unavailable.
+Discussion
+Content generation temporarily unavailable.
+Introduction
+Content generation temporarily unavailable.
+Methodology
+Content generation temporarily unavailable.
+References
+No references available.
+Results
+Content generation temporarily unavailable.

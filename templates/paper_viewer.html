@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Viewer - CiteCraft.AI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .paper-viewer {
+            background: #f8fafc;
+            min-height: 100vh;
+            padding-top: 5rem;
+        }
+
+        .paper-header {
+            background: white;
+            padding: 2rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 2rem;
+        }
+
+        .paper-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .paper-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+
+        .paper-main {
+            background: white;
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            min-height: 80vh;
+        }
+
+        .paper-sidebar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .paper-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .paper-meta {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .section-content {
+            line-height: 1.8;
+            color: var(--text-primary);
+            text-align: justify;
+        }
+
+        .table-of-contents {
+            margin-bottom: 2rem;
+        }
+
+        .toc-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .toc-item {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .toc-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .toc-link:hover {
+            color: var(--primary-color);
+        }
+
+        .paper-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .download-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 80px;
+        }
+
+        .btn-download {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-edit {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-share {
+            background: #10b981;
+            color: white;
+        }
+
+        .paper-info {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .text-selection-toolbar {
+            position: absolute;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .text-selection-toolbar.show {
+            display: flex;
+        }
+
+        .toolbar-btn {
+            padding: 0.5rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .ai-edit-modal {
+            max-width: 700px;
+        }
+
+        .ai-suggestions {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .suggestion-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-item:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .suggestion-item.selected {
+            border-color: var(--primary-color);
+            background: #f0f9ff;
+        }
+
+        .text-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .text-box {
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            background: #f9fafb;
+        }
+
+        .text-box.original {
+            background: #fef2f2;
+        }
+
+        .text-box.revised {
+            background: #f0fdf4;
+        }
+
+        .text-box-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .paper-content {
+                grid-template-columns: 1fr;
+            }
+
+            .paper-sidebar {
+                order: -1;
+                position: static;
+            }
+
+            .paper-main {
+                padding: 2rem;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 1rem;
+                padding: 1rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .text-comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .text-selection-toolbar {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="paper-viewer">
+        <div class="paper-header">
+            <div class="paper-nav">
+                <a href="/dashboard" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+                <div class="paper-actions">
+                    <div class="download-group">
+                        <button class="action-btn btn-download" onclick="downloadPaper('pdf')">
+                            <i class="fas fa-file-pdf"></i>
+                            PDF
+                        </button>
+                        <button class="action-btn btn-download" onclick="downloadPaper('docx')">
+                            <i class="fas fa-file-word"></i>
+                            DOCX
+                        </button>
+                    </div>
+                    <button class="action-btn btn-edit" onclick="editPaper()">
+                        <i class="fas fa-edit"></i>
+                        Edit
+                    </button>
+                    <button class="action-btn btn-share" onclick="sharePaper()">
+                        <i class="fas fa-share"></i>
+                        Share
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="paper-content">
+            <div class="paper-main">
+                <div class="paper-title" id="paper-title">Loading...</div>
+                <div class="paper-meta" id="paper-meta"></div>
+
+                <div id="paper-sections">
+                    <!-- Sections will be loaded here -->
+                </div>
+            </div>
+
+            <div class="paper-sidebar">
+                <div class="table-of-contents">
+                    <div class="toc-title">Table of Contents</div>
+                    <div id="table-of-contents">
+                        <!-- TOC will be generated here -->
+                    </div>
+                </div>
+
+                <div class="paper-info">
+                    <div class="info-item">
+                        <span>Status:</span>
+                        <span id="paper-status">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span>Citation Style:</span>
+                        <span id="citation-style">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span>Generated:</span>
+                        <span id="generated-date">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span>Created:</span>
+                        <span id="created-date">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span>Updated:</span>
+                        <span id="updated-date">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Text Selection Toolbar -->
+    <div class="text-selection-toolbar" id="text-selection-toolbar">
+        <button class="toolbar-btn" onclick="aiEditSelected()">
+            <i class="fas fa-magic"></i>
+            Edit with AI
+        </button>
+        <button class="toolbar-btn" onclick="replaceSelected()">
+            <i class="fas fa-exchange-alt"></i>
+            Replace
+        </button>
+        <button class="toolbar-btn" onclick="hideSelectionToolbar()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Loading paper...</p>
+        </div>
+    </div>
+
+    <script>
+        let currentPaper = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!isAuthenticated()) {
+                window.location.href = '/login';
+                return;
+            }
+
+            const paperId = new URLSearchParams(window.location.search).get('id');
+            if (paperId) {
+                loadPaper(paperId);
+            } else {
+                window.location.href = '/dashboard';
+            }
+        });
+
+        async function loadPaper(paperId) {
+            try {
+                showLoading();
+                const paper = await apiCall(`/papers/${paperId}`);
+                currentPaper = paper;
+                displayPaper(paper);
+                generateTableOfContents();
+                hideLoading();
+            } catch (error) {
+                console.error('Error loading paper:', error);
+                alert('Error loading paper: ' + error.message);
+                window.location.href = '/dashboard';
+            }
+        }
+
+        function displayPaper(paper) {
+            document.getElementById('paper-title').textContent = paper.title;
+            document.getElementById('paper-meta').innerHTML = `
+                <p><strong>Abstract:</strong> ${paper.abstract}</p>
+            `;
+
+            // Update sidebar info
+            document.getElementById('paper-status').textContent = paper.status;
+            document.getElementById('citation-style').textContent = paper.citation_style;
+            document.getElementById('generated-date').textContent = paper.generated_at ? 
+                new Date(paper.generated_at).toLocaleString() : 'Not available';
+            document.getElementById('created-date').textContent = new Date(paper.created_at).toLocaleDateString();
+            document.getElementById('updated-date').textContent = new Date(paper.updated_at).toLocaleDateString();
+
+            // Display sections in proper academic order
+            const sectionsContainer = document.getElementById('paper-sections');
+            if (paper.content && typeof paper.content === 'object') {
+                const sectionOrder = [
+                    'introduction',
+                    'literature_review', 
+                    'methodology',
+                    'results',
+                    'discussion',
+                    'conclusion',
+                    'references'
+                ];
+
+                const sectionTitles = {
+                    'introduction': 'Introduction',
+                    'literature_review': 'Literature Review',
+                    'methodology': 'Methodology',
+                    'results': 'Results',
+                    'discussion': 'Discussion', 
+                    'conclusion': 'Conclusion',
+                    'references': 'References'
+                };
+
+                let sectionsHTML = '';
+                sectionOrder.forEach((key, index) => {
+                    if (paper.content[key]) {
+                        const sectionNumber = index + 1;
+                        const sectionTitle = sectionTitles[key] || capitalizeFirst(key);
+                        sectionsHTML += `
+                            <div class="section" id="section-${key}">
+                                <h2 class="section-title">${sectionNumber}. ${sectionTitle}</h2>
+                                <div class="section-content">${formatContent(paper.content[key])}</div>
+                            </div>
+                        `;
+                    }
+                });
+
+                sectionsContainer.innerHTML = sectionsHTML || '<p>No content available yet.</p>';
+            } else {
+                sectionsContainer.innerHTML = '<p>No content available yet.</p>';
+            }
+        }
+
+        function generateTableOfContents() {
+            const sections = document.querySelectorAll('.section');
+            const tocContainer = document.getElementById('table-of-contents');
+
+            // Define proper academic order for sections
+            const sectionOrder = [
+                'introduction',
+                'literature_review', 
+                'methodology',
+                'results',
+                'discussion',
+                'conclusion',
+                'references'
+            ];
+
+            // Create ordered TOC based on academic structure
+            const orderedSections = [];
+            sectionOrder.forEach((sectionKey, index) => {
+                const section = document.getElementById(`section-${sectionKey}`);
+                if (section) {
+                    const title = section.querySelector('.section-title').textContent;
+                    orderedSections.push({
+                        id: section.id,
+                        title: `${index + 1}. ${title}`,
+                        originalTitle: title
+                    });
+                }
+            });
+
+            tocContainer.innerHTML = orderedSections.map(section => `
+                <div class="toc-item">
+                    <a href="#${section.id}" class="toc-link">
+                        ${section.title}
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function formatContent(content) {
+            if (typeof content === 'string') {
+                return content.replace(/\n/g, '<br>');
+            }
+            return content;
+        }
+
+        function showLoading() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+
+        function downloadPaper(format) {
+            if (!currentPaper) return;
+
+            const downloadBtn = document.querySelector(`button[onclick="downloadPaper('${format}')"]`);
+            const originalText = downloadBtn.innerHTML;
+            downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing...';
+            downloadBtn.disabled = true;
+
+            fetch(`/api/papers/${currentPaper.id}/download/${format}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Download failed');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${currentPaper.title.replace(/[^a-z0-9]/gi, '_')}.${format}`;
+                a.click();
+                URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Download error:', error);
+                alert('Error downloading file: ' + error.message);
+            })
+            .finally(() => {
+                downloadBtn.innerHTML = originalText;
+                downloadBtn.disabled = false;
+            });
+        }
+
+        function editPaper() {
+            if (!currentPaper) return;
+
+            // Create edit modal
+            const editModal = document.createElement('div');
+            editModal.className = 'modal';
+            editModal.id = 'edit-paper-modal';
+            editModal.innerHTML = `
+                <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Edit Paper</h3>
+                        <button class="close-btn" onclick="closeEditModal()">&times;</button>
+                    </div>
+                    <form id="edit-paper-form">
+                        <div class="form-group">
+                            <label class="form-label">Paper Title</label>
+                            <input type="text" id="edit-title" class="form-input" value="${currentPaper.title}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Abstract</label>
+                            <textarea id="edit-abstract" class="form-textarea" required>${currentPaper.abstract}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Citation Style</label>
+                            <select id="edit-citation-style" class="form-select">
+                                <option value="APA" ${currentPaper.citation_style === 'APA' ? 'selected' : ''}>APA</option>
+                                <option value="MLA" ${currentPaper.citation_style === 'MLA' ? 'selected' : ''}>MLA</option>
+                                <option value="IEEE" ${currentPaper.citation_style === 'IEEE' ? 'selected' : ''}>IEEE</option>
+                                <option value="Chicago" ${currentPaper.citation_style === 'Chicago' ? 'selected' : ''}>Chicago</option>
+                            </select>
+                        </div>
+                        ${generateEditSections()}
+                        <div class="form-actions" style="display: flex; gap: 1rem; margin-top: 2rem;">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                Save Changes
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="closeEditModal()">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.body.appendChild(editModal);
+            editModal.style.display = 'flex';
+
+            // Handle form submission
+            document.getElementById('edit-paper-form').addEventListener('submit', handleEditSubmit);
+        }
+
+        function generateEditSections() {
+            if (!currentPaper.content) return '';
+
+            const sectionOrder = ['introduction', 'literature_review', 'methodology', 'results', 'discussion', 'conclusion'];
+            const sectionTitles = {
+                'introduction': 'Introduction',
+                'literature_review': 'Literature Review',
+                'methodology': 'Methodology',
+                'results': 'Results',
+                'discussion': 'Discussion',
+                'conclusion': 'Conclusion'
+            };
+
+            return sectionOrder.map(key => {
+                if (currentPaper.content[key]) {
+                    return `
+                        <div class="form-group">
+                            <label class="form-label">${sectionTitles[key]}</label>
+                            <textarea id="edit-${key}" class="form-textarea" style="min-height: 200px;">${currentPaper.content[key]}</textarea>
+                        </div>
+                    `;
+                }
+                return '';
+            }).join('');
+        }
+
+        async function handleEditSubmit(e) {
+            e.preventDefault();
+
+            const formData = {
+                title: document.getElementById('edit-title').value,
+                abstract: document.getElementById('edit-abstract').value,
+                citation_style: document.getElementById('edit-citation-style').value,
+                content: {}
+            };
+
+            // Collect section content
+            const sectionOrder = ['introduction', 'literature_review', 'methodology', 'results', 'discussion', 'conclusion'];
+            sectionOrder.forEach(key => {
+                const textarea = document.getElementById(`edit-${key}`);
+                if (textarea) {
+                    formData.content[key] = textarea.value;
+                }
+            });
+
+            // Keep references as is
+            if (currentPaper.content.references) {
+                formData.content.references = currentPaper.content.references;
+            }
+
+            try {
+                showLoading();
+                const result = await apiCall(`/papers/${currentPaper.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(formData)
+                });
+
+                hideLoading();
+                closeEditModal();
+
+                // Reload the paper
+                await loadPaper(currentPaper.id);
+                alert('Paper updated successfully!');
+
+            } catch (error) {
+                hideLoading();
+                alert('Error updating paper: ' + error.message);
+            }
+        }
+
+        function closeEditModal() {
+            const modal = document.getElementById('edit-paper-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function sharePaper() {
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({
+                    title: currentPaper.title,
+                    text: currentPaper.abstract,
+                    url: url
+                });
+            } else {
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('Paper link copied to clipboard!');
+                });
+            }
+        }
+
+        // Helper functions to show success/error messages
+        function showSuccess(message) {
+            alert(message); // Using alert for simplicity, a toast notification would be better
+        }
+
+        function showError(message) {
+            alert('Error: ' + message); // Using alert for simplicity
+        }
+
+        // Helper function to close modals by ID
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Text selection functionality
+        let selectedText = '';
+        let selectedRange = null;
+        let selectionContext = '';
+
+        document.addEventListener('mouseup', handleTextSelection);
+        document.addEventListener('touchend', handleTextSelection);
+
+        function handleTextSelection(e) {
+            const selection = window.getSelection();
+            if (selection.toString().trim().length > 0) {
+                selectedText = selection.toString().trim();
+                selectedRange = selection.getRangeAt(0);
+                
+                // Get context (surrounding text)
+                const container = selectedRange.commonAncestorContainer;
+                const parentElement = container.nodeType === Node.TEXT_NODE ? container.parentElement : container;
+                selectionContext = parentElement.textContent || '';
+                
+                showSelectionToolbar(e);
+            } else {
+                hideSelectionToolbar();
+            }
+        }
+
+        function showSelectionToolbar(e) {
+            const toolbar = document.getElementById('text-selection-toolbar');
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            
+            toolbar.style.left = Math.max(10, rect.left + (rect.width / 2) - 100) + 'px';
+            toolbar.style.top = (rect.top - 50 + window.scrollY) + 'px';
+            toolbar.classList.add('show');
+        }
+
+        function hideSelectionToolbar() {
+            document.getElementById('text-selection-toolbar').classList.remove('show');
+            window.getSelection().removeAllRanges();
+        }
+
+        function aiEditSelected() {
+            if (!selectedText) return;
+            showAiEditModal();
+        }
+
+        function replaceSelected() {
+            if (!selectedText) return;
+            showReplaceModal();
+        }
+
+        function showAiEditModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.id = 'ai-edit-modal';
+            modal.innerHTML = `
+                <div class="modal-content ai-edit-modal">
+                    <div class="modal-header">
+                        <h3 class="modal-title">AI Text Editor</h3>
+                        <button class="close-btn" onclick="closeModal('ai-edit-modal')">&times;</button>
+                    </div>
+                    <div class="text-comparison">
+                        <div class="text-box original">
+                            <div class="text-box-title">Original Text</div>
+                            <div>${selectedText}</div>
+                        </div>
+                        <div class="text-box revised" id="revised-text-box" style="display: none;">
+                            <div class="text-box-title">AI Suggestion</div>
+                            <div id="revised-text-content"></div>
+                        </div>
+                    </div>
+                    <form id="ai-edit-form">
+                        <div class="form-group">
+                            <label class="form-label">Editing Instruction</label>
+                            <textarea id="edit-instruction" class="form-textarea" placeholder="e.g., Make this more concise, Improve academic tone, Fix grammar, etc." required></textarea>
+                        </div>
+                        <div id="ai-suggestions" class="ai-suggestions" style="display: none;">
+                            <h4>AI Suggestions:</h4>
+                            <div id="suggestions-container"></div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-magic"></i>
+                                Get AI Suggestion
+                            </button>
+                            <button type="button" class="btn btn-success" id="apply-edit-btn" style="display: none;" onclick="applyTextEdit()">
+                                <i class="fas fa-check"></i>
+                                Apply Changes
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('ai-edit-modal')">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            modal.style.display = 'flex';
+            hideSelectionToolbar();
+
+            document.getElementById('ai-edit-form').addEventListener('submit', handleAiEdit);
+        }
+
+        function showReplaceModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.id = 'replace-modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Replace Text</h3>
+                        <button class="close-btn" onclick="closeModal('replace-modal')">&times;</button>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Original Text</label>
+                        <div class="text-box original">${selectedText}</div>
+                    </div>
+                    <form id="replace-form">
+                        <div class="form-group">
+                            <label class="form-label">Replace With</label>
+                            <textarea id="replacement-text" class="form-textarea" placeholder="Enter replacement text..." required></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-exchange-alt"></i>
+                                Replace Text
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('replace-modal')">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            modal.style.display = 'flex';
+            hideSelectionToolbar();
+
+            document.getElementById('replace-form').addEventListener('submit', handleReplace);
+        }
+
+        async function handleAiEdit(e) {
+            e.preventDefault();
+            
+            const instruction = document.getElementById('edit-instruction').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting AI Suggestion...';
+            submitBtn.disabled = true;
+
+            try {
+                const response = await apiCall(`/papers/${currentPaper.id}/ai-edit`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        selected_text: selectedText,
+                        instruction: instruction,
+                        context: selectionContext.substring(0, 500)
+                    })
+                });
+
+                if (response.ai_available && response.revised_text) {
+                    document.getElementById('revised-text-content').textContent = response.revised_text;
+                    document.getElementById('revised-text-box').style.display = 'block';
+                    document.getElementById('apply-edit-btn').style.display = 'inline-block';
+                    window.currentRevisedText = response.revised_text;
+                } else if (response.suggestions) {
+                    displayFallbackSuggestions(response.suggestions);
+                }
+
+            } catch (error) {
+                alert('Error getting AI suggestion: ' + error.message);
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        function displayFallbackSuggestions(suggestions) {
+            const container = document.getElementById('suggestions-container');
+            const suggestionsDiv = document.getElementById('ai-suggestions');
+            
+            container.innerHTML = suggestions.map((suggestion, index) => `
+                <div class="suggestion-item" onclick="selectSuggestion(${index}, '${suggestion}')">
+                    ${suggestion}
+                </div>
+            `).join('');
+            
+            suggestionsDiv.style.display = 'block';
+        }
+
+        function selectSuggestion(index, suggestion) {
+            document.querySelectorAll('.suggestion-item').forEach(item => item.classList.remove('selected'));
+            document.querySelectorAll('.suggestion-item')[index].classList.add('selected');
+            window.currentRevisedText = suggestion;
+            document.getElementById('apply-edit-btn').style.display = 'inline-block';
+        }
+
+        async function handleReplace(e) {
+            e.preventDefault();
+            
+            const replacementText = document.getElementById('replacement-text').value;
+            window.currentRevisedText = replacementText;
+            applyTextEdit();
+        }
+
+        function applyTextEdit() {
+            if (!selectedRange || !window.currentRevisedText) return;
+
+            try {
+                // Replace the selected text
+                selectedRange.deleteContents();
+                selectedRange.insertNode(document.createTextNode(window.currentRevisedText));
+                
+                // Update the paper content in memory
+                updatePaperContent();
+                
+                // Close modal
+                const modal = document.getElementById('ai-edit-modal') || document.getElementById('replace-modal');
+                if (modal) modal.remove();
+                
+                // Show success message
+                showToast('Text updated successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error applying text edit:', error);
+                alert('Error applying changes: ' + error.message);
+            }
+        }
+
+        function updatePaperContent() {
+            // Extract updated content from the DOM
+            const sections = document.querySelectorAll('.section');
+            const updatedContent = { ...currentPaper.content };
+            
+            sections.forEach(section => {
+                const sectionId = section.id.replace('section-', '');
+                const sectionContent = section.querySelector('.section-content');
+                if (sectionContent && sectionId !== 'references') {
+                    updatedContent[sectionId] = sectionContent.textContent || sectionContent.innerText;
+                }
+            });
+            
+            // Update paper in backend
+            savePaperChanges(updatedContent);
+        }
+
+        async function savePaperChanges(updatedContent) {
+            try {
+                await apiCall(`/papers/${currentPaper.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        title: currentPaper.title,
+                        abstract: currentPaper.abstract,
+                        citation_style: currentPaper.citation_style,
+                        content: updatedContent
+                    })
+                });
+                
+                currentPaper.content = updatedContent;
+                console.log('Paper content saved successfully');
+                
+            } catch (error) {
+                console.error('Error saving paper changes:', error);
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : '#3b82f6'};
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 0.5rem;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Smooth scrolling for TOC links
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('toc-link')) {
+                e.preventDefault();
+                const targetId = e.target.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+
+        // Auth and API functions
+        function isAuthenticated() {
+            return !!localStorage.getItem('token');
+        }
+
+        async function apiCall(endpoint, options = {}) {
+            const token = localStorage.getItem('token');
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+
+            if (token) {
+                headers.Authorization = `Bearer ${token}`;
+            }
+
+            try {
+                const response = await fetch(`/api${endpoint}`, {
+                    ...options,
+                    headers
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'An error occurred');
+                }
+
+                return data;
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+    </script>
+</body>
+</html>
