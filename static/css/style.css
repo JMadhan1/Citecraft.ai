@@ -438,10 +438,100 @@ p {
 .form-textarea {
     min-height: 120px;
     resize: vertical;
+    color: var(--text-primary);
+    background-color: #ffffff;
+    line-height: 1.6;
+    font-size: 16px;
 }
 
 .form-select {
     cursor: pointer;
+}
+
+/* AI Editing Modal Styles */
+.ai-edit-modal {
+    max-width: 700px !important;
+    max-height: 85vh !important;
+    overflow-y: auto;
+}
+
+.ai-edit-modal .text-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.ai-edit-modal .text-box-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.ai-edit-modal .form-textarea {
+    min-height: 100px !important;
+    max-height: 200px;
+    font-size: 16px !important;
+    padding: 1rem !important;
+    color: var(--text-primary) !important;
+    background: #ffffff !important;
+    border: 2px solid var(--border-color) !important;
+    border-radius: var(--border-radius) !important;
+    line-height: 1.5 !important;
+    resize: vertical;
+}
+
+.ai-edit-modal .form-textarea:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+    outline: none !important;
+}
+
+.ai-edit-modal .form-textarea::placeholder {
+    color: var(--text-muted) !important;
+    opacity: 0.7;
+}
+
+.ai-suggestions {
+    display: none;
+    background: #f0f9ff;
+    border: 1px solid #bfdbfe;
+    border-radius: var(--border-radius);
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: var(--shadow);
+}
+
+.ai-suggestions.active {
+    display: block;
+}
+
+.suggestion-item {
+    padding: 0.5rem;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: background 0.2s ease;
+    font-size: 14px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid #e0f2fe;
+}
+
+.suggestion-item:hover {
+    background: #e0f2fe;
+    color: var(--primary-color);
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
 }
 
 /* Messages */

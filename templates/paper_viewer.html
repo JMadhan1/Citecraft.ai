@@ -937,10 +937,13 @@
                         <div class="form-group">
                             <label class="form-label">Editing Instruction</label>
                             <textarea id="edit-instruction" class="form-textarea" placeholder="e.g., Make this more concise, Improve academic tone, Fix grammar, etc." required></textarea>
-                        </div>
-                        <div id="ai-suggestions" class="ai-suggestions" style="display: none;">
-                            <h4>AI Suggestions:</h4>
-                            <div id="suggestions-container"></div>
+                            <div id="ai-suggestions" class="ai-suggestions">
+                                <div class="suggestion-item" onclick="applySuggestion('Make this text more concise and remove redundancy')">Make this text more concise and remove redundancy</div>
+                                <div class="suggestion-item" onclick="applySuggestion('Improve the academic tone and formality')">Improve the academic tone and formality</div>
+                                <div class="suggestion-item" onclick="applySuggestion('Fix grammar and enhance readability')">Fix grammar and enhance readability</div>
+                                <div class="suggestion-item" onclick="applySuggestion('Add more technical details and citations')">Add more technical details and citations</div>
+                                <div class="suggestion-item" onclick="applySuggestion('Simplify complex sentences for clarity')">Simplify complex sentences for clarity</div>
+                            </div>
                         </div>
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">
@@ -963,7 +966,49 @@
             modal.style.display = 'flex';
             hideSelectionToolbar();
 
+            // Set up event listeners for the AI edit form
             document.getElementById('ai-edit-form').addEventListener('submit', handleAiEdit);
+            
+            // Add real-time suggestions functionality
+            const instructionTextarea = document.getElementById('edit-instruction');
+            const suggestionsDiv = document.getElementById('ai-suggestions');
+            
+            let suggestionTimeout;
+            
+            instructionTextarea.addEventListener('focus', () => {
+                suggestionsDiv.classList.add('active');
+            });
+            
+            instructionTextarea.addEventListener('input', (e) => {
+                // Clear previous timeout
+                clearTimeout(suggestionTimeout);
+                
+                const text = e.target.value.trim();
+                if (text.length > 2) {
+                    // Show suggestions after a short delay
+                    suggestionTimeout = setTimeout(() => {
+                        suggestionsDiv.classList.add('active');
+                    }, 500);
+                } else {
+                    suggestionsDiv.classList.remove('active');
+                }
+            });
+            
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!instructionTextarea.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                    suggestionsDiv.classList.remove('active');
+                }
+            });
+        }
+        
+        function applySuggestion(suggestion) {
+            const textarea = document.getElementById('edit-instruction');
+            if (textarea) {
+                textarea.value = suggestion;
+                textarea.focus();
+                document.getElementById('ai-suggestions').classList.remove('active');
+            }
         }
 
         function showReplaceModal() {
