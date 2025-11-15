@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: citecraft
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SESSION_SECRET
+        generateValue: true
+    healthCheckPath: /
+    
+databases:
+  - name: citecraft-db
+    databaseName: citecraft
+    user: citecraft
+    plan: free
+

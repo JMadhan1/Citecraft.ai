@@ -16,11 +16,22 @@
                 <i class="fas fa-brain pulse-animation"></i>
                 <span class="logo-text">CiteCraft.AI</span>
             </div>
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+                <i class="fas fa-bars" id="menu-icon"></i>
+            </button>
             <div class="nav-menu">
                 <a href="#features" class="nav-link">Features</a>
                 <a href="#how-it-works" class="nav-link">How It Works</a>
                 <a href="/login" class="nav-link login-btn">Login</a>
                 <a href="/login" class="nav-link cta-btn">Get Started</a>
+            </div>
+        </div>
+        <div class="mobile-menu" id="mobile-menu">
+            <div class="mobile-menu-items">
+                <a href="#features" class="mobile-menu-item" onclick="toggleMobileMenu()">Features</a>
+                <a href="#how-it-works" class="mobile-menu-item" onclick="toggleMobileMenu()">How It Works</a>
+                <a href="/login" class="mobile-menu-item" onclick="toggleMobileMenu()">Login</a>
+                <a href="/login" class="mobile-menu-item" onclick="toggleMobileMenu()">Get Started</a>
             </div>
         </div>
     </nav>

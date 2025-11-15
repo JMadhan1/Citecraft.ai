@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import jwt
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import requests
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -30,10 +30,19 @@ from docx.enum.section import WD_SECTION, WD_ORIENT
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SESSION_SECRET')
-if not app.config['SECRET_KEY']:
-    raise ValueError("SESSION_SECRET environment variable is required")
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///research_platform.db'
+app.config['SECRET_KEY'] = os.environ.get('SESSION_SECRET', 'dev_secret_key')
+
+# Database configuration - use PostgreSQL on Render, SQLite for local development
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    # Render provides DATABASE_URL in format: postgresql://user:pass@host:port/dbname
+    # SQLAlchemy needs postgresql:// instead of postgres://
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///research_platform.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -45,7 +54,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     papers = db.relationship('Paper', backref='author', lazy=True)
 
 class Paper(db.Model):
@@ -56,8 +65,8 @@ class Paper(db.Model):
     status = db.Column(db.String(50), default='draft')
     citation_style = db.Column(db.String(20), default='APA')
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     generated_at = db.Column(db.DateTime) # Added for generation timestamp
 
 # Authentication decorator
@@ -157,7 +166,7 @@ def login():
             if password_valid:
                 token = jwt.encode({
                     'user_id': user.id,
-                    'exp': datetime.utcnow() + timedelta(hours=24)
+                    'exp': datetime.now(timezone.utc) + timedelta(hours=24)
                 }, app.config['SECRET_KEY'], algorithm='HS256')
 
                 return jsonify({
@@ -194,7 +203,7 @@ def generate_paper(current_user):
         paper.user_id = current_user.id
         paper.citation_style = data.get('citation_style', 'APA')
         paper.status = 'generating'
-        paper.generated_at = datetime.utcnow()
+        paper.generated_at = datetime.now(timezone.utc)
 
         db.session.add(paper)
         db.session.commit()
@@ -330,7 +339,7 @@ def update_paper(current_user, paper_id):
                 print(f"Error regenerating citations: {citation_error}")
                 # Continue with update even if citation regeneration fails
 
-        paper.updated_at = datetime.utcnow()
+        paper.updated_at = datetime.now(timezone.utc)
 
         db.session.commit()
 
@@ -1422,7 +1431,7 @@ Ibrahim, Ahmed S., et al. "Cross-cultural considerations in research methodology
 
 Jackson, Diana L. *Advanced techniques in qualitative research analysis*. Research Publications, 2021.
         """
-    else:  # IEEE or default
+    else: # IEEE or default
         return """
 References
 
@@ -2036,7 +2045,7 @@ def format_paper_context(paper, index):
     """
     title = paper.get('title', 'Unknown Title')
     authors = paper.get('authors', [])
-    year = paper.get('year', 'Unknown Year')
+    year = paper.get('year', 'Unknown')
     abstract = paper.get('abstract', 'No abstract available')
     citation_count = paper.get('citationCount', 0)
     venue = paper.get('venue', 'Unknown Venue')
@@ -2574,6 +2583,8 @@ def insert_comprehensive_citations(content, citation_registry, citation_style, s
                 citation_index += 1
 
         enhanced_paragraphs.append('. '.join(enhanced_sentences))
+
+    return '\n\n'.join(enhanced_paragraphs)
 
     return '\n\n'.join(enhanced_paragraphs)
 
@@ -3470,4 +3481,6 @@ with app.app_context():
     print("Database initialized")
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_ENV') == 'development'
+    app.run(host='0.0.0.0', port=port, debug=debug)
